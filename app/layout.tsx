@@ -3,9 +3,9 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'Black Sand Exchange | Verified Mineral Trade',
+  description: 'A trusted B2B marketplace connecting qualified buyers with verified mineral suppliers across the globe.',
+  generator: 'Black Sand Exchange',
   icons: {
     icon: [
       {

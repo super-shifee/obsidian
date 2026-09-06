@@ -1,47 +1,43 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+import Link from 'next/link'
+import { ArrowRight, Bell, Check, ChevronDown, Heart, Menu, Search, ShieldCheck, Sparkles, X } from 'lucide-react'
+
+const products = [
+  { name: 'Premium Ilmenite Sand', origin: 'Mozambique', grade: 'TiO₂ 54%+', quantity: '2,500 MT available', image: '/mineral-hero.png', seller: 'Nacala Minerals', verified: true },
+  { name: 'High-Grade Graphite', origin: 'Madagascar', grade: 'TGC 96%+', quantity: '800 MT available', image: '/mineral-hero.png', seller: 'Atlas Carbon', verified: true },
+  { name: 'Copper Concentrate', origin: 'Chile', grade: 'Cu 28–30%', quantity: '1,200 MT available', image: '/mineral-hero.png', seller: 'Andes Resources', verified: true },
+]
+
+function Logo() {
+  return <Link href="/" className="flex items-center gap-3" aria-label="Black Sand home"><span className="grid size-9 place-items-center rounded-full bg-mineral text-charcoal"><span className="text-lg font-semibold">B</span></span><span className="font-display text-lg font-semibold tracking-[0.18em]">BLACK SAND</span></Link>
+}
+
 export default function Page() {
-  return (
-    <main
-      style={{
-        colorScheme: 'light dark',
-        position: 'relative',
-        display: 'flex',
-        minHeight: '100vh',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'light-dark(#fff, #000)',
-        color: 'light-dark(#000, #fff)',
-      }}
-    >
-      <svg
-        aria-hidden="true"
-        style={{ width: 80, height: 80 }}
-        width={80}
-        height={80}
-        fill="none"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-        stroke="currentColor"
-        strokeWidth="0.5"
-      >
-        <path
-          d="M14.2 14.2H17V6.9375C17 4.76288 15.2371 3 13.0625 3H5.8V5.8M14.2 14.2V7.79063L7.79062 14.2H14.2ZM14.2 14.2V17H6.9375C4.76288 17 3 15.2371 3 13.0625V5.8H5.8M5.8 5.8V12.2313L12.2313 5.8H5.8Z"
-          strokeLinejoin="round"
-        />
-      </svg>
-      <p
-        style={{
-          position: 'absolute',
-          left: '50%',
-          top: 'calc(50% + 56px)',
-          transform: 'translateX(-50%)',
-          whiteSpace: 'nowrap',
-          fontSize: '14px',
-          fontWeight: 500,
-          color: 'light-dark(#71717a, #a1a1aa)',
-        }}
-      >
-        Your v0 generation will show here.
-      </p>
-    </main>
-  )
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [favorites, setFavorites] = useState<string[]>([])
+  const filtered = useMemo(() => products.filter((product) => `${product.name} ${product.origin} ${product.grade}`.toLowerCase().includes(query.toLowerCase())), [query])
+  const toggleFavorite = (name: string) => setFavorites((current) => current.includes(name) ? current.filter((item) => item !== name) : [...current, name])
+
+  return <main className="min-h-screen bg-charcoal text-sand">
+    <div className="border-b border-white/10 bg-charcoal px-6 py-2 text-center text-xs tracking-wide text-sand/65">Trade with confidence. Every seller is verified before they list.</div>
+    <header className="relative z-20 border-b border-white/10 bg-charcoal/95 px-6 backdrop-blur md:px-10">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between"><Logo /><nav className="hidden items-center gap-8 text-sm text-sand/65 lg:flex"><Link className="text-sand" href="/marketplace">Marketplace</Link><Link href="/about">How it works</Link><Link href="/blog">Insights</Link><Link href="/contact">Contact</Link></nav><div className="hidden items-center gap-4 md:flex"><button className="rounded-full p-2 text-sand/65 transition hover:bg-white/10 hover:text-sand" aria-label="Notifications"><Bell /></button><Link className="text-sm text-sand/70 hover:text-sand" href="/dashboard/buyer">Sign in</Link><Link className="rounded-full bg-mineral px-5 py-3 text-sm font-medium text-charcoal transition hover:bg-mineral-light" href="/dashboard/seller">List your minerals <ArrowRight className="ml-2 inline size-4" /></Link></div><button className="rounded-full p-2 md:hidden" aria-label={menuOpen ? 'Close menu' : 'Open menu'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button></div>
+      {menuOpen && <nav className="flex flex-col gap-5 border-t border-white/10 py-6 text-sm text-sand/75 md:hidden"><Link href="/marketplace">Marketplace</Link><Link href="/about">How it works</Link><Link href="/blog">Insights</Link><Link href="/contact">Contact</Link><Link href="/dashboard/buyer">Sign in</Link></nav>}
+    </header>
+
+    <section className="relative overflow-hidden border-b border-white/10"><div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(20,20,18,.98)_0%,rgba(20,20,18,.82)_42%,rgba(20,20,18,.2)_100%)]" /><img src="/mineral-hero.png" alt="Raw black mineral sand and ore" className="absolute inset-0 -z-0 size-full object-cover object-center opacity-75" /><div className="relative mx-auto flex min-h-[560px] max-w-7xl items-center px-6 py-24 md:px-10"><div className="max-w-2xl"><p className="mb-6 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.24em] text-mineral"><span className="size-2 rounded-full bg-mineral" /> The verified minerals marketplace</p><h1 className="font-display text-5xl font-medium leading-[1.04] tracking-[-0.045em] text-balance md:text-7xl">Source the earth’s <span className="text-mineral">most valuable</span> materials.</h1><p className="mt-7 max-w-xl text-lg leading-8 text-sand/70">A trusted B2B marketplace connecting qualified buyers with verified mineral suppliers across the globe.</p><div className="mt-10 flex max-w-2xl flex-col gap-3 sm:flex-row"><div className="flex flex-1 items-center gap-3 rounded-full border border-white/15 bg-charcoal/70 px-5 py-4 backdrop-blur"><Search className="size-5 text-mineral" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search minerals, grades, or origins" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-sand/40" /></div><Link href="/marketplace" className="rounded-full bg-mineral px-7 py-4 text-center text-sm font-medium text-charcoal transition hover:bg-mineral-light">Explore marketplace</Link></div><div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-sand/55"><span className="flex items-center gap-2"><ShieldCheck className="size-4 text-mineral" /> Verified suppliers</span><span className="flex items-center gap-2"><Check className="size-4 text-mineral" /> Transparent sourcing</span><span className="flex items-center gap-2"><Check className="size-4 text-mineral" /> Global logistics</span></div></div></div></section>
+
+    <section className="border-b border-white/10 bg-ink px-6 py-6 md:px-10"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-5"><p className="text-xs uppercase tracking-[0.2em] text-sand/40">Trusted by teams at</p><div className="flex flex-wrap gap-x-10 gap-y-3 font-display text-sm tracking-[0.14em] text-sand/45"><span>ARCADIA METALS</span><span>NORTHSTAR</span><span>ELEMENTAL</span><span>ORBITAL</span><span>VERDANT</span></div></div></section>
+
+    <section className="mx-auto max-w-7xl px-6 py-24 md:px-10"><div className="flex flex-col justify-between gap-6 md:flex-row md:items-end"><div><p className="mb-4 text-xs uppercase tracking-[0.2em] text-mineral">Curated supply</p><h2 className="font-display text-4xl tracking-[-0.035em] md:text-5xl">Featured materials</h2></div><Link href="/marketplace" className="text-sm text-sand/60 hover:text-mineral">View all materials <ArrowRight className="ml-2 inline size-4" /></Link></div><div className="mt-12 grid gap-5 lg:grid-cols-3">{filtered.map((product) => <article key={product.name} className="group overflow-hidden rounded-2xl border border-white/10 bg-ink"><div className="relative aspect-[1.35] overflow-hidden"><img src={product.image} alt={product.name} className="size-full object-cover opacity-80 transition duration-500 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-ink/80 to-transparent" /><button onClick={() => toggleFavorite(product.name)} aria-label={`${favorites.includes(product.name) ? 'Remove' : 'Add'} ${product.name} ${favorites.includes(product.name) ? 'from' : 'to'} favorites`} className="absolute right-4 top-4 grid size-9 place-items-center rounded-full border border-white/15 bg-charcoal/50 backdrop-blur"><Heart className={favorites.includes(product.name) ? 'size-4 fill-mineral text-mineral' : 'size-4'} /></button><div className="absolute bottom-4 left-5 flex items-center gap-2 text-xs text-sand/70"><span className="rounded-full bg-mineral px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-charcoal">Verified</span><span>{product.origin}</span></div></div><div className="p-5"><h3 className="font-display text-xl">{product.name}</h3><div className="mt-4 grid grid-cols-2 gap-4 border-y border-white/10 py-4 text-sm"><div><p className="text-xs text-sand/40">Grade</p><p className="mt-1 text-sand/85">{product.grade}</p></div><div><p className="text-xs text-sand/40">Availability</p><p className="mt-1 text-sand/85">{product.quantity}</p></div></div><p className="mt-4 text-sm text-sand/50">{product.seller}</p><Link href={`/products/${product.name.toLowerCase().replaceAll(' ', '-')}`} className="mt-5 block rounded-full border border-white/15 py-3 text-center text-sm transition hover:border-mineral hover:text-mineral">View material <ArrowRight className="ml-2 inline size-4" /></Link></div></article>)}</div>{filtered.length === 0 && <div className="mt-8 rounded-2xl border border-dashed border-white/15 p-12 text-center text-sand/60">No materials match “{query}”. Try a different grade, origin, or mineral.</div>}</section>
+
+    <section className="border-y border-white/10 bg-ink px-6 py-20 md:px-10"><div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center"><div><p className="mb-4 text-xs uppercase tracking-[0.2em] text-mineral">A better way to trade</p><h2 className="max-w-lg font-display text-4xl leading-tight tracking-[-0.035em] md:text-5xl">Built for the materials that move the world.</h2><p className="mt-6 max-w-md leading-7 text-sand/60">Black Sand brings verified supply, clear specifications, and serious buyers into one focused place.</p><Link href="/about" className="mt-8 inline-flex items-center rounded-full border border-white/20 px-5 py-3 text-sm hover:border-mineral hover:text-mineral">How Black Sand works <ArrowRight className="ml-2 size-4" /></Link></div><div className="grid gap-5 sm:grid-cols-3"><div className="border-t border-mineral pt-5"><p className="font-display text-4xl">1,240+</p><p className="mt-2 text-sm leading-6 text-sand/50">verified listings</p></div><div className="border-t border-mineral pt-5"><p className="font-display text-4xl">42</p><p className="mt-2 text-sm leading-6 text-sand/50">countries reached</p></div><div className="border-t border-mineral pt-5"><p className="font-display text-4xl">98%</p><p className="mt-2 text-sm leading-6 text-sand/50">response rate</p></div></div></div></section>
+
+    <section className="mx-auto max-w-7xl px-6 py-24 md:px-10"><div className="rounded-3xl border border-mineral/30 bg-mineral p-8 text-charcoal md:p-14"><div className="flex flex-col justify-between gap-8 md:flex-row md:items-end"><div><Sparkles className="mb-8 size-7" /><h2 className="max-w-xl font-display text-4xl leading-tight tracking-[-0.035em] md:text-5xl">Have materials to move?</h2><p className="mt-4 max-w-md leading-7 text-charcoal/65">Put your supply in front of qualified buyers who are ready to source.</p></div><Link href="/dashboard/seller" className="inline-flex items-center justify-center rounded-full bg-charcoal px-6 py-4 text-sm font-medium text-sand transition hover:bg-ink">Start selling <ArrowRight className="ml-2 size-4" /></Link></div></div></section>
+
+    <footer className="border-t border-white/10 px-6 py-12 md:px-10"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-10 md:flex-row"><div><Logo /><p className="mt-5 max-w-xs text-sm leading-6 text-sand/45">A clearer, more connected future for mineral trade.</p></div><div className="grid grid-cols-2 gap-x-16 gap-y-4 text-sm text-sand/55"><Link href="/marketplace">Marketplace</Link><Link href="/about">About</Link><Link href="/blog">Insights</Link><Link href="/contact">Contact</Link><Link href="/dashboard/buyer">Buyer dashboard</Link><Link href="/dashboard/seller">Seller dashboard</Link></div></div><div className="mx-auto mt-12 flex max-w-7xl flex-col justify-between gap-3 border-t border-white/10 pt-6 text-xs text-sand/35 md:flex-row"><span>© 2026 Black Sand Exchange</span><span>Built for a better material future.</span></div></footer>
+  </main>
 }
