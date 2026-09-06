@@ -1,9 +1,18 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { ArrowRight, Mail, MapPin, Phone } from 'lucide-react'
 
 export default function ContactPage() {
+  const [submitted, setSubmitted] = useState(false)
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setSubmitted(true)
+    event.currentTarget.reset()
+  }
+
   return (
     <main className="min-h-screen bg-charcoal text-sand">
       <header className="border-b border-white/10 px-6 md:px-10">
@@ -24,7 +33,8 @@ export default function ContactPage() {
         </div>
 
         <div className="mt-16 grid gap-6 lg:grid-cols-[1.05fr_.95fr]">
-          <form className="rounded-3xl border border-white/10 bg-ink p-6 md:p-8" onSubmit={(event) => event.preventDefault()}>
+          <form className="rounded-3xl border border-white/10 bg-ink p-6 md:p-8" onSubmit={handleSubmit}>
+            {submitted && <p className="mb-5 rounded-xl border border-mineral/30 bg-mineral/10 px-4 py-3 text-sm text-mineral" role="status">Your inquiry has been received. We&apos;ll get back to you within one business day.</p>}
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="grid gap-2 text-sm text-sand/70">Name<input required className="rounded-xl border border-white/10 bg-charcoal px-4 py-3 text-sand outline-none focus:border-mineral" placeholder="Your name" /></label>
               <label className="grid gap-2 text-sm text-sand/70">Work email<input required type="email" className="rounded-xl border border-white/10 bg-charcoal px-4 py-3 text-sand outline-none focus:border-mineral" placeholder="you@company.com" /></label>
