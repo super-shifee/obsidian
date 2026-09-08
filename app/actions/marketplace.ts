@@ -2,7 +2,7 @@
 
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { products, requests, favorites } from '@/lib/db/schema'
+import { products, requests, favorites, announcements, notifications } from '@/lib/db/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
@@ -133,6 +133,51 @@ export async function createSellerProduct(data: {
   revalidatePath('/dashboard/seller')
   revalidatePath('/marketplace')
   return created[0]
+}
+
+export async function getSellerRequests() {
+  const userId = await getUserId()
+  return db
+    .select({ request: requests, product: products })
+    .from(requests)
+    .innerJoin(products, eq(requests.productId, products.id))
+    .where(eq(products.sellerUserId, userId))
+    .orderBy(desc(requests.createdAt))
+}
+
+export async function deleteSellerProduct(id: string) {
+  const userId = await getUserId()
+  const deleted = await db.delete(products).where(and(eq(products.id, id), eq(products.sellerUserId, userId))).returning({ id: products.id })
+  if (!deleted[0]) throw new Error('Product not found')
+  revalidatePath('/dashboard/seller')
+  revalidatePath('/marketplace')
+}
+
+export async function setProductAvailability(id: string, availability: string) {
+  const userId = await getUserId()
+  const updated = await db.update(products).set({ availability, updatedAt: new Date() }).where(and(eq(products.id, id), eq(products.sellerUserId, userId))).returning()
+  if (!updated[0]) throw new Error('Product not found')
+  revalidatePath('/dashboard/seller')
+  revalidatePath('/marketplace')
+  return updated[0]
+}
+
+export async function getSellerAnnouncements() {
+  const userId = await getUserId()
+  return db.select().from(announcements).where(eq(announcements.sellerUserId, userId)).orderBy(desc(announcements.createdAt))
+}
+
+export async function createSellerAnnouncement(data: { title: string; message: string }) {
+  const userId = await getUserId()
+  if (!data.title.trim() || !data.message.trim()) throw new Error('Title and message are required')
+  const created = await db.insert(announcements).values({ sellerUserId: userId, title: data.title.trim(), message: data.message.trim() }).returning()
+  revalidatePath('/dashboard/seller')
+  return created[0]
+}
+
+export async function getBuyerNotifications() {
+  const userId = await getUserId()
+  return db.select().from(notifications).where(eq(notifications.buyerUserId, userId)).orderBy(desc(notifications.createdAt))
 }
 
 export async function updateSellerProduct(id: string, data: Partial<Parameters<typeof createSellerProduct>[0]>) {

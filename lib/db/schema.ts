@@ -80,6 +80,33 @@ export const products = pgTable(
   (table) => [index('marketplace_products_availability_idx').on(table.availability)],
 )
 
+export const announcements = pgTable(
+  'marketplace_announcements',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    sellerUserId: text('seller_user_id').notNull(),
+    title: text('title').notNull(),
+    message: text('message').notNull(),
+    audience: text('audience').notNull().default('buyers'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [index('marketplace_announcements_seller_idx').on(table.sellerUserId)],
+)
+
+export const notifications = pgTable(
+  'marketplace_notifications',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    buyerUserId: text('buyer_user_id').notNull(),
+    title: text('title').notNull(),
+    message: text('message').notNull(),
+    productId: uuid('product_id'),
+    readAt: timestamp('read_at'),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+  },
+  (table) => [index('marketplace_notifications_buyer_idx').on(table.buyerUserId)],
+)
+
 export const requests = pgTable(
   'marketplace_requests',
   {
