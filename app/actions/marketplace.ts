@@ -103,7 +103,7 @@ export async function getSellerProducts() {
   return db.select().from(products).where(eq(products.sellerUserId, userId)).orderBy(desc(products.updatedAt))
 }
 
-export async function createSellerProduct(data: {
+export type SellerProductInput = {
   name: string
   slug: string
   category: string
@@ -111,6 +111,8 @@ export async function createSellerProduct(data: {
   quantity: number
   unit: string
   price: number
+  currency?: string
+  availability?: string
   mineralContent: string
   grade: string
   country: string
@@ -119,13 +121,22 @@ export async function createSellerProduct(data: {
   sellerCompany: string
   imageUrls?: string[]
   documentUrls?: string[]
-}) {
+}
+
+function validateProduct(data: SellerProductInput) {
+  if (!data.name.trim() || !data.slug.trim() || !data.description.trim()) throw new Error('Name, slug, and description are required')
+  if (!Number.isFinite(data.quantity) || data.quantity < 0 || !Number.isFinite(data.price) || data.price < 0) throw new Error('Quantity and price must be valid non-negative numbers')
+}
+
+export async function createSellerProduct(data: SellerProductInput) {
   const userId = await getUserId()
-  if (!data.name.trim() || !data.slug.trim() || data.quantity < 0 || data.price < 0) throw new Error('Invalid product details')
+  validateProduct(data)
   const created = await db.insert(products).values({
     ...data,
     quantity: String(data.quantity),
     price: String(data.price),
+    currency: data.currency ?? 'USD',
+    availability: data.availability ?? 'available',
     sellerUserId: userId,
     imageUrls: data.imageUrls ?? [],
     documentUrls: data.documentUrls ?? [],
@@ -180,7 +191,12 @@ export async function getBuyerNotifications() {
   return db.select().from(notifications).where(eq(notifications.buyerUserId, userId)).orderBy(desc(notifications.createdAt))
 }
 
-export async function updateSellerProduct(id: string, data: Partial<Parameters<typeof createSellerProduct>[0]>) {
+export async function getSellerProduct(id: string) {
+  const userId = await getUserId()
+  return db.query.products.findFirst({ where: and(eq(products.id, id), eq(products.sellerUserId, userId)) })
+}
+
+export async function updateSellerProduct(id: string, data: Partial<SellerProductInput>) {
   const userId = await getUserId()
   const { quantity, price, ...textFields } = data
   const updated = await db.update(products).set({
