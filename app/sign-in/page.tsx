@@ -17,7 +17,7 @@ function SignInContent() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (event.nativeEvent.isComposing || (event as unknown as KeyboardEvent).keyCode === 229) return
+    if ((event.nativeEvent as KeyboardEvent).isComposing || (event.nativeEvent as KeyboardEvent).keyCode === 229) return
     setPending(true)
     setError('')
     const result = await authClient.signIn.email({ email, password })

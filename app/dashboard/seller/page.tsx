@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import type { LucideIcon } from 'lucide-react'
 import { ArrowRight, Bell, Boxes, FileText, Plus, ShieldCheck, TrendingUp } from 'lucide-react'
 import { getSellerAnnouncements, getSellerProducts, getSellerRequests } from '@/app/actions/marketplace'
 
@@ -29,7 +30,7 @@ export default async function SellerDashboard() {
               <Link href="/dashboard/seller/new" className="inline-flex items-center justify-center rounded-xl bg-mineral px-6 py-3 font-semibold text-charcoal transition hover:bg-mineral-light"><Plus className="mr-2 size-5" /> Add product</Link>
             </div>
             <div className="mt-12 grid gap-4 md:grid-cols-4">
-              {[['Active listings', active, Boxes], ['Total listings', products.length, TrendingUp], ['Buyer inquiries', requests.length, FileText], ['Low stock', lowStock, ShieldCheck]].map(([label, value, Icon]) => (
+              {([['Active listings', active, Boxes], ['Total listings', products.length, TrendingUp], ['Buyer inquiries', requests.length, FileText], ['Low stock', lowStock, ShieldCheck]] as [string, number, LucideIcon][]).map(([label, value, Icon]) => (
                 <div key={label as string} className="rounded-2xl border border-white/10 bg-ink p-6"><Icon className="size-5 text-mineral" /><p className="mt-5 text-sm text-sand/50">{label as string}</p><p className="mt-2 font-display text-4xl">{value as number}</p></div>
               ))}
             </div>
