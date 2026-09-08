@@ -1,11 +1,11 @@
-import { pgTable, text, timestamp, uuid, numeric, jsonb, index } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, uuid, numeric, jsonb, index, boolean } from 'drizzle-orm/pg-core'
 
 // Better Auth tables
 export const users = pgTable('user', {
   id: text('id').primaryKey(),
   name: text('name'),
   email: text('email').notNull().unique(),
-  emailVerified: timestamp('emailVerified'),
+  emailVerified: boolean('emailVerified').notNull().default(false),
   image: text('image'),
   createdAt: timestamp('createdAt').notNull(),
   updatedAt: timestamp('updatedAt').notNull(),
@@ -69,6 +69,7 @@ export const products = pgTable(
     country: text('country').notNull(),
     region: text('region').notNull(),
     availability: text('availability').notNull().default('available'),
+    sellerUserId: text('seller_user_id'),
     sellerName: text('seller_name').notNull(),
     sellerCompany: text('seller_company').notNull(),
     imageUrls: jsonb('image_urls').notNull().default('[]'),

@@ -97,3 +97,55 @@ export async function getQuoteRequestById(id: string) {
     where: and(eq(requests.id, id), eq(requests.buyerUserId, userId)),
   })
 }
+
+export async function getSellerProducts() {
+  const userId = await getUserId()
+  return db.select().from(products).where(eq(products.sellerUserId, userId)).orderBy(desc(products.updatedAt))
+}
+
+export async function createSellerProduct(data: {
+  name: string
+  slug: string
+  category: string
+  description: string
+  quantity: number
+  unit: string
+  price: number
+  mineralContent: string
+  grade: string
+  country: string
+  region: string
+  sellerName: string
+  sellerCompany: string
+  imageUrls?: string[]
+  documentUrls?: string[]
+}) {
+  const userId = await getUserId()
+  if (!data.name.trim() || !data.slug.trim() || data.quantity < 0 || data.price < 0) throw new Error('Invalid product details')
+  const created = await db.insert(products).values({
+    ...data,
+    quantity: String(data.quantity),
+    price: String(data.price),
+    sellerUserId: userId,
+    imageUrls: data.imageUrls ?? [],
+    documentUrls: data.documentUrls ?? [],
+  }).returning()
+  revalidatePath('/dashboard/seller')
+  revalidatePath('/marketplace')
+  return created[0]
+}
+
+export async function updateSellerProduct(id: string, data: Partial<Parameters<typeof createSellerProduct>[0]>) {
+  const userId = await getUserId()
+  const { quantity, price, ...textFields } = data
+  const updated = await db.update(products).set({
+    ...textFields,
+    ...(quantity !== undefined ? { quantity: String(quantity) } : {}),
+    ...(price !== undefined ? { price: String(price) } : {}),
+    updatedAt: new Date(),
+  }).where(and(eq(products.id, id), eq(products.sellerUserId, userId))).returning()
+  if (!updated[0]) throw new Error('Product not found')
+  revalidatePath('/dashboard/seller')
+  revalidatePath('/marketplace')
+  return updated[0]
+}
