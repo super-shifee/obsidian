@@ -1,7 +1,9 @@
 import { betterAuth } from 'better-auth'
 import { Pool } from 'pg'
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+})
 
 export const auth = betterAuth({
   database: pool,
@@ -39,5 +41,15 @@ export const auth = betterAuth({
     : {}),
   emailAndPassword: {
     enabled: true,
+  },
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'BUYER',
+        input: true,
+      },
+    },
   },
 })
