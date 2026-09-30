@@ -9,7 +9,7 @@ import { authClient } from '@/lib/auth-client'
 export default function SignInPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirect') || '/dashboard/buyer'
+  const redirectTo = searchParams.get('redirect')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -17,7 +17,7 @@ export default function SignInPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (event.nativeEvent.isComposing || (event as unknown as KeyboardEvent).keyCode === 229) return
+    if ((event.nativeEvent as KeyboardEvent).isComposing || (event as unknown as KeyboardEvent).keyCode === 229) return
     setPending(true)
     setError('')
     const result = await authClient.signIn.email({ email, password })
@@ -26,7 +26,9 @@ export default function SignInPage() {
       setPending(false)
       return
     }
-    router.push(redirectTo)
+    const role = (result.data?.user as { role?: string } | undefined)?.role?.toUpperCase()
+  const destination = redirectTo || (role === 'ADMIN' ? '/admin/dashboard' : role === 'SELLER' ? '/seller/dashboard' : '/buyer/dashboard')
+  router.push(destination)
     router.refresh()
   }
 

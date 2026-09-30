@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
+import { auth } from '@/lib/auth'
 import {
   ArrowRight,
   Bell,
@@ -59,4 +62,11 @@ function BuyerDashboard() {
 
 function EmptyDashboard({ role }: { role: string }) { return <><p className="mt-20 text-xs uppercase tracking-[0.2em] text-mineral">Workspace</p><h1 className="mt-4 font-display text-5xl capitalize">{role} dashboard</h1><div className="mt-10 grid gap-4 md:grid-cols-3"><div className="rounded-2xl border border-white/10 bg-ink p-6"><p className="text-sm text-sand/50">Status</p><p className="mt-3 text-2xl">Ready to connect</p></div><div className="rounded-2xl border border-white/10 bg-ink p-6"><p className="text-sm text-sand/50">Data layer</p><p className="mt-3 text-2xl">Repository adapter</p></div><div className="rounded-2xl border border-mineral/30 bg-mineral p-6 text-charcoal"><p className="text-sm text-charcoal/60">Next step</p><p className="mt-3 text-2xl">Connect your account</p></div></div></> }
 
-export default async function DashboardPage({ params }: Props) { const { role } = await params; const normalizedRole = role.toLowerCase(); return <main className="min-h-screen bg-charcoal px-5 text-sand md:px-8 lg:px-10"><div className="mx-auto max-w-[1440px]"><div className="flex h-20 items-center justify-between border-b border-white/10"><Link href="/" className="text-sm text-sand/55 transition hover:text-mineral">← Back to marketplace</Link><div className="hidden text-xs uppercase tracking-[0.18em] text-sand/35 sm:block">Verified mineral trade</div></div>{normalizedRole === 'buyer' ? <BuyerDashboard /> : <EmptyDashboard role={role} />}</div></main> }
+export default async function DashboardPage({ params }: Props) {
+  const { role } = await params
+  const normalizedRole = role.toLowerCase()
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) redirect(`/sign-in?redirect=/dashboard/${normalizedRole}`)
+  const userRole = (session.user.role ?? 'BUYER').toLowerCase()
+  if (normalizedRole !== userRole) redirect(`/dashboard/${userRole}`)
+  return <main className="min-h-screen bg-charcoal px-5 text-sand md:px-8 lg:px-10"><div className="mx-auto max-w-[1440px]"><div className="flex h-20 items-center justify-between border-b border-white/10"><Link href="/" className="text-sm text-sand/55 transition hover:text-mineral">← Back to marketplace</Link><div className="hidden text-xs uppercase tracking-[0.18em] text-sand/35 sm:block">Verified mineral trade</div></div>{normalizedRole === 'buyer' ? <BuyerDashboard /> : <EmptyDashboard role={role} />}</div></main> }

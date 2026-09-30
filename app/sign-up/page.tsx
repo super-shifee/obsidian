@@ -2,30 +2,32 @@
 
 import { FormEvent, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react'
 import { authClient } from '@/lib/auth-client'
 
 export default function SignUpPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const role = searchParams.get('role')?.toUpperCase() === 'SELLER' ? 'SELLER' : 'BUYER'
   const [error, setError] = useState('')
   const [pending, setPending] = useState(false)
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (event.nativeEvent.isComposing || (event as unknown as KeyboardEvent).keyCode === 229) return
+    if ((event.nativeEvent as KeyboardEvent).isComposing || (event as unknown as KeyboardEvent).keyCode === 229) return
     setPending(true)
     setError('')
-    const result = await authClient.signUp.email({ name, email, password })
+    const result = await (authClient.signUp.email as (input: { name: string; email: string; password: string; role: string }) => Promise<any>)({ name, email, password, role })
     if (result.error) {
       setError('Unable to create your account. Please check your details and try again.')
       setPending(false)
       return
     }
-    router.push('/dashboard/buyer')
+    router.push(role === 'SELLER' ? '/seller/dashboard' : '/buyer/dashboard')
     router.refresh()
   }
 
